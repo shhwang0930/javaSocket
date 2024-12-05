@@ -21,7 +21,6 @@ public class server {
                 Socket socket = serverSocket.accept();
                 System.out.println(socket.getInetAddress()+"로 연결 요청이 들어옴");
 
-
                 OutputStream out = socket.getOutputStream();
                 DataOutputStream dos = new DataOutputStream(out);
 

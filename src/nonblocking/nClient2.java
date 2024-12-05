@@ -8,7 +8,7 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.channels.WritableByteChannel;
 
-public class nClient {
+public class nClient2 {
     public static void main(String[] args) {
         Thread systemIn;
         // 서버 p와 포트로 연결되는 소켓채널 생성
@@ -31,37 +31,6 @@ public class nClient {
             }
         }catch (IOException e){
             e.printStackTrace();
-        }
-    }
-}
-// 입력을 담당하는 클래스
-class SystemIn implements Runnable {
-
-    SocketChannel socket;
-
-
-    // 연결된 소켓 채널과 모니터 출력용 채널을 생성자로 받음
-    SystemIn(SocketChannel socket) {
-        this.socket = socket;
-    }
-
-    @Override
-    public void run() {
-
-        // 키보드 입력받을 채널과 저장할 버퍼 생성
-        ReadableByteChannel in = Channels.newChannel(System.in);
-        ByteBuffer buf = ByteBuffer.allocate(1024);
-
-        try {
-            while (true) {
-                in.read(buf); // 읽어올때까지 블로킹되어 대기상태
-                buf.flip();
-                socket.write(buf); // 입력한 내용을 서버로 출력
-                buf.clear();
-            }
-
-        } catch (IOException e) {
-            System.out.println("채팅 불가.");
         }
     }
 }
