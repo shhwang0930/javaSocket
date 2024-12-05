@@ -16,7 +16,9 @@ public class Pserver {
     >> 클라이언트가 메세지를 보낼때 서버에서 해당 구독자들에게만 보내는 방법
     1. 아이디를 받을 때 구독한 방도 같이 받게함
     2. 메세지를 보낼 때 해시맵에서 구독한 방의 채널들을 찾음
-    3. 해당 채널들에게만 메세지 전송 >
+    3. 해당 채널들에게만 메세지 전송
+
+    >> 일단 topic id 분리받아서 입력 가능하면 상태 또한 입력받아서 그걸로 구분해서 동작할 수 있도록 변경
      */
 
     public static void main(String[] args) {
@@ -37,7 +39,7 @@ public class Pserver {
             ByteBuffer ob = ByteBuffer.allocate(1024);
 
             while (true) {
-                selector.select();
+                selector.select(); //이벤트가 발생할때까지 블로킹되어 있다가 이벤트가 발생하면 다시 처리를 재개함
 
                 Iterator<SelectionKey> iterator = selector.selectedKeys().iterator(); //selectedKeys set을 iterator에 담아줌
                 while (iterator.hasNext()) {
@@ -130,6 +132,9 @@ class ClientInfo {
     // 아직 아이디 입력이 안된 경우 true
     private boolean idCheck = true;
     private String id;
+    private boolean topicCheck = true;
+    private String topic;
+
 
     // ID가 들어있는지 확인
     boolean isID() {
@@ -158,7 +163,7 @@ class ClientInfo {
 }
 
 class Broker {
-    public void send(ByteBuffer ob, SocketChannel readSocket, Set<SocketChannel> clients,
+    void send(ByteBuffer ob, SocketChannel readSocket, Set<SocketChannel> clients,
                      HashMap<SocketChannel, String> topicSub, String topic, ClientInfo info) throws IOException {
         topic = info.getID().substring(0, 1);
         topicSub.put(readSocket, topic);
@@ -170,9 +175,9 @@ class Broker {
         }
     }
 
-    public void subscribe(SocketChannel client, String topic, HashMap<SocketChannel, String> topicSub) {
+    void subscribe(SocketChannel client, String topic, HashMap<SocketChannel, String> topicSub) {
         topicSub.put(client, topic);
     }
-    
+
 }
 

@@ -36,8 +36,8 @@ public class nServer {
             //클라이언트 접속 시작
             while (true){
                 selector.select(); // 이벤트 발생까지 스레드 블로킹
-
                 Iterator<SelectionKey> iterator = selector.selectedKeys().iterator(); //selectedKeys set을 iterator에 담아줌
+
                 while (iterator.hasNext()){
                     //key : 현재 처리할 이벤트, iterator에서 key 지워줌
                     SelectionKey key = iterator.next();
