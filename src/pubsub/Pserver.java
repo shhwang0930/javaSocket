@@ -64,56 +64,64 @@ public class Pserver {
                         // 아이디를 입력받을 차례이므로 읽기모드로 셀렉터에 등록
                         client.register(selector, SelectionKey.OP_READ, new ClientInfo());
 
-                    } else if (key.isReadable()) { //읽기 이벤트 발생 : 클라이언트 > 서버
-                        // 현재 채널 정보 가져옴
+                    } else if (key.isReadable()) {
                         SocketChannel readSocket = (SocketChannel) key.channel();
-                        ClientInfo info = (ClientInfo) key.attachment(); // 사용자 정보
+                        ClientInfo info = (ClientInfo) key.attachment();
                         try {
-                            readSocket.read(ib); // 데이터 읽어오기
-                        } catch (Exception e) { // 클라이언트의 연결 종료
-                            key.cancel(); // 셀렉터 관리대상에서 삭제
-                            clients.remove(readSocket); // set에서 삭제
-
-                            //서버 종료
-                            topic = info.getID().substring(0, 1);
-                            String end = topic + " : " + info.getID().substring(1) + "의 연결 종료";
-                            broker.subscribe(readSocket, topic, topicSub);
-                            System.out.println(end);
-
-                            ob.put(end.getBytes());
+                            readSocket.read(ib); // 데이터 읽기
+                        } catch (IOException e) {
+                            // 클라이언트 연결 종료 처리
+                            key.cancel();
+                            clients.remove(readSocket);
+                            topic = info.getTopic();
+                            String end = topic + " : " + info.getID() + " has disconnected.";
                             broker.send(ob, readSocket, clients, topicSub, topic, info);
                             ob.clear();
                             continue;
                         }
-                        if (info.isID()) { // 현재 아이디가 없을 경우 아이디 등록
-                            //현재 ib의 내용 중 개행문자를 제외하고 가져와서 ID로 넣어줌
+
+                        // ID 입력 상태 확인
+                        if (!info.isIDEntered()) {
                             ib.limit(ib.position() - 2);
                             ib.position(0);
                             byte[] b = new byte[ib.limit()];
                             ib.get(b);
-                            info.setID(new String(b));
+                            info.setID(new String(b)); // ID 설정
 
-                            // 서버 출력
-                            topic = info.getID().substring(0, 1);
-                            String enter = topic + " : " + info.getID().substring(1) + "의 입장";
+                            // ID 입력 완료 후 Topic 요청
+                            readSocket.write(ByteBuffer.wrap("input topic: ".getBytes()));
+                            ib.clear();
+                            continue;
+                        }
+
+                        // Topic 입력 상태 확인
+                        if (!info.isTopicEntered()) {
+                            ib.limit(ib.position() - 2);
+                            ib.position(0);
+                            byte[] b = new byte[ib.limit()];
+                            ib.get(b);
+                            info.setTopic(new String(b)); // Topic 설정
+
+                            // Topic 등록 및 클라이언트 입장 메시지 전송
+                            topic = info.getTopic();
+                            String enter = topic + " : " + info.getID() + " has joined.";
                             broker.subscribe(readSocket, topic, topicSub);
                             System.out.println(enter);
 
                             ob.put(enter.getBytes());
                             broker.send(ob, readSocket, clients, topicSub, topic, info);
-                            ib.clear();
                             ob.clear();
-
+                            ib.clear();
                             continue;
                         }
-                        // 읽어온 데이터와 아이디 정보를 결합해 출력한 버퍼 생성
+
+                        // 메시지 처리 (ID와 Topic이 모두 입력된 경우)
                         ib.flip();
-                        ob.put((info.getID().substring(1) + " : ").getBytes());
+                        ob.put((info.getID() + " : ").getBytes());
                         ob.put(ib);
                         ob.flip();
 
-                        topic = info.getID().substring(0, 1);
-                        broker.subscribe(readSocket, topic, topicSub);
+                        topic = info.getTopic();
                         broker.send(ob, readSocket, clients, topicSub, topic, info);
 
                         ib.clear();
@@ -130,53 +138,58 @@ public class Pserver {
 class ClientInfo {
 
     // 아직 아이디 입력이 안된 경우 true
-    private boolean idCheck = true;
-    private String id;
-    private boolean topicCheck = true;
-    private String topic;
+    private boolean idCheck = true; // ID 입력 여부
+    private boolean topicCheck = true; // Topic 입력 여부
+    private String id; // ID
+    private String topic; // Topic
 
-
-    // ID가 들어있는지 확인
-    boolean isID() {
-
-        return idCheck;
-    }
-
-    // ID를 입력받으면 false로 변경
-    private void setCheck() {
-
-        idCheck = false;
-    }
-
-    // ID 정보 반환
-    String getID() {
-
-        return id;
+    // ID가 입력되었는지 확인
+    boolean isIDEntered() {
+        return !idCheck;
     }
 
     // ID 입력
     void setID(String id) {
         this.id = id;
-        setCheck();
+        this.idCheck = false; // ID 입력 완료 상태로 변경
+    }
+
+    String getID() {
+        return id;
+    }
+
+    // Topic이 입력되었는지 확인
+    boolean isTopicEntered() {
+        return !topicCheck;
+    }
+
+    // Topic 입력
+    void setTopic(String topic) {
+        this.topic = topic;
+        this.topicCheck = false; // Topic 입력 완료 상태로 변경
+    }
+
+    String getTopic() {
+        return topic;
     }
 
 }
 
 class Broker {
     void send(ByteBuffer ob, SocketChannel readSocket, Set<SocketChannel> clients,
-                     HashMap<SocketChannel, String> topicSub, String topic, ClientInfo info) throws IOException {
-        topic = info.getID().substring(0, 1);
-        topicSub.put(readSocket, topic);
-        for (SocketChannel s : clients) {
-            if (topicSub.get(s).equals(topic) && !readSocket.equals(s)) {
-                s.write(ob);
-                ob.flip();
+              HashMap<SocketChannel, String> topicSub, String topic, ClientInfo info) throws IOException {
+        topic = info.getTopic(); // 클라이언트가 입력한 실제 Topic
+        for (SocketChannel client : clients) {
+            // 같은 Topic에 속한 클라이언트에게만 메시지 전송
+            if (topic.equals(topicSub.get(client)) && !readSocket.equals(client)) {
+                ob.rewind(); // ByteBuffer를 다시 읽기 상태로 설정
+                client.write(ob);
             }
         }
     }
 
     void subscribe(SocketChannel client, String topic, HashMap<SocketChannel, String> topicSub) {
-        topicSub.put(client, topic);
+        topicSub.put(client, topic); // Topic 등록
     }
 
 }
