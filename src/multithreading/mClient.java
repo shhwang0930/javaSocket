@@ -15,8 +15,8 @@ public class mClient {
 
         dos.writeUTF("hello");
 
-        String reponse = dis.readUTF();
-        System.out.println("서버의 응답 : "+reponse);
+        String response = dis.readUTF();
+        System.out.println("서버의 응답 : "+response);
 
         dis.close();
         dos.close();

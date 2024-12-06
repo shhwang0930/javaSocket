@@ -40,9 +40,10 @@ public class Pserver {
 
             while (true) {
                 selector.select(); //이벤트가 발생할때까지 블로킹되어 있다가 이벤트가 발생하면 다시 처리를 재개함
-
                 Iterator<SelectionKey> iterator = selector.selectedKeys().iterator(); //selectedKeys set을 iterator에 담아줌
+
                 while (iterator.hasNext()) {
+
                     //key : 현재 처리할 이벤트, iterator에서 key 지워줌
                     SelectionKey key = iterator.next();
                     iterator.remove();
@@ -73,15 +74,25 @@ public class Pserver {
                             // 클라이언트 연결 종료 처리
                             key.cancel();
                             clients.remove(readSocket);
+
                             topic = info.getTopic();
                             String end = topic + " : " + info.getID() + " has disconnected.";
-                            broker.send(ob, readSocket, clients, topicSub, topic, info);
+                            System.out.println(end);
+                            ob.put(end.getBytes());
+                            for (SocketChannel client : clients) {
+                                // 같은 Topic에 속한 클라이언트에게만 메시지 전송
+                                if (topic.equals(topicSub.get(client)) && !readSocket.equals(client)) {
+                                    ob.flip();
+                                    client.write(ob);
+                                }
+                            }
+
                             ob.clear();
                             continue;
                         }
 
                         // ID 입력 상태 확인
-                        if (!info.isIDEntered()) {
+                        if (!info.isID()) {
                             ib.limit(ib.position() - 2);
                             ib.position(0);
                             byte[] b = new byte[ib.limit()];
@@ -95,7 +106,7 @@ public class Pserver {
                         }
 
                         // Topic 입력 상태 확인
-                        if (!info.isTopicEntered()) {
+                        if (!info.isTopic()) {
                             ib.limit(ib.position() - 2);
                             ib.position(0);
                             byte[] b = new byte[ib.limit()];
@@ -109,7 +120,13 @@ public class Pserver {
                             System.out.println(enter);
 
                             ob.put(enter.getBytes());
-                            broker.send(ob, readSocket, clients, topicSub, topic, info);
+                            for (SocketChannel client : clients) {
+                                // 같은 Topic에 속한 클라이언트에게만 메시지 전송
+                                if (topic.equals(topicSub.get(client)) && !readSocket.equals(client)) {
+                                    ob.flip();
+                                    client.write(ob);
+                                }
+                            }
                             ob.clear();
                             ib.clear();
                             continue;
@@ -122,7 +139,13 @@ public class Pserver {
                         ob.flip();
 
                         topic = info.getTopic();
-                        broker.send(ob, readSocket, clients, topicSub, topic, info);
+                        for (SocketChannel client : clients) {
+                            // 같은 Topic에 속한 클라이언트에게만 메시지 전송
+                            if (topic.equals(topicSub.get(client)) && !readSocket.equals(client)) {
+                                client.write(ob);
+                                ob.flip();
+                            }
+                        }
 
                         ib.clear();
                         ob.clear();
@@ -144,7 +167,7 @@ class ClientInfo {
     private String topic; // Topic
 
     // ID가 입력되었는지 확인
-    boolean isIDEntered() {
+    boolean isID() {
         return !idCheck;
     }
 
@@ -159,7 +182,7 @@ class ClientInfo {
     }
 
     // Topic이 입력되었는지 확인
-    boolean isTopicEntered() {
+    boolean isTopic() {
         return !topicCheck;
     }
 
@@ -176,18 +199,6 @@ class ClientInfo {
 }
 
 class Broker {
-    void send(ByteBuffer ob, SocketChannel readSocket, Set<SocketChannel> clients,
-              HashMap<SocketChannel, String> topicSub, String topic, ClientInfo info) throws IOException {
-        topic = info.getTopic(); // 클라이언트가 입력한 실제 Topic
-        for (SocketChannel client : clients) {
-            // 같은 Topic에 속한 클라이언트에게만 메시지 전송
-            if (topic.equals(topicSub.get(client)) && !readSocket.equals(client)) {
-                ob.rewind(); // ByteBuffer를 다시 읽기 상태로 설정
-                client.write(ob);
-            }
-        }
-    }
-
     void subscribe(SocketChannel client, String topic, HashMap<SocketChannel, String> topicSub) {
         topicSub.put(client, topic); // Topic 등록
     }

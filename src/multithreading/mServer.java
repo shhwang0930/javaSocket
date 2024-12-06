@@ -19,6 +19,7 @@ public class mServer {
 
         //무한 반복문을 통해 언제든지 클라이언트의 연결을 받을 준비
         while(true){
+            System.out.println("server wating");
             Socket socket = serverSocket.accept();
             executorService.execute(new ClientHandler(socket));
         }
