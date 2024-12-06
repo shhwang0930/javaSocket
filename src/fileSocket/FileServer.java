@@ -18,6 +18,8 @@ public class FileServer {
                     while(true) {
                         DataOutputStream dos = new DataOutputStream(sock.getOutputStream());
                         DataInputStream dis = new DataInputStream(sock.getInputStream());
+
+
                         File dir = new File("C:/start/");
                         File[] files = dir.listFiles();
 
@@ -32,12 +34,13 @@ public class FileServer {
                         FileInputStream fis = new FileInputStream(file);
                         DataInputStream fsis = new DataInputStream(fis);
 
+                        //파일
                         byte[] filecontants = new byte[(int)file.length()];
                         fsis.readFully(filecontants);
 
                         dos.writeLong(filecontants.length);
                         dos.write(filecontants);
-                        dos.flush();
+                        dos.flush(); // 잔류데이터 전부 출력 비우는 역할
                     }
                 } catch(Exception e){
                     continue;
