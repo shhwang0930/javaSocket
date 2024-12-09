@@ -1,31 +1,95 @@
 package simpleSocket;
 
-import java.io.DataInputStream;
-import java.io.InputStream;
+import protocol.BodyPacket;
+import protocol.ConnectPacket;
+import protocol.DisconnectPacket;
+
+import java.io.*;
 import java.net.Socket;
+import java.util.Scanner;
+
+import static java.lang.System.out;
 
 public class client {
     public static void main(String[] args) {
+        Socket socket = null;
+        DataOutputStream dos = null;
+        Scanner sc = new Scanner(System.in);
+        String command = "";
         try{
             String serverIp = "127.0.0.1";
-            System.out.println("서버에 연결중입니다. 서버 IP : " + serverIp);
+            out.println("서버에 연결중입니다. 서버 IP : " + serverIp);
             // 소켓을 생성하여 연결을 요청한다.
-            Socket socket = new Socket(serverIp, 8000);
+            socket = new Socket(serverIp, 8000);
 
             // 소켓의 입력스트림을 얻는다
-            InputStream in = socket.getInputStream();
-            DataInputStream dis = new DataInputStream(in);
+            OutputStream out = socket.getOutputStream();
+            dos = new DataOutputStream(out);
 
-            // 소켓으로 부터 받은 데이터를 출력한다
-            System.out.println("서버로부터 받은 메세지 : " + dis.readUTF());
-            System.out.println("연결을 종료합니다.");
+            while (true){
+                System.out.println("명령을 입력하세요 : ");
+                command = sc.nextLine();
+
+                if(command.equals("1")){ // 메세지 전송
+                    String msg;
+                    System.out.println("채팅을 입력하세요 : ");
+                    msg = sc.nextLine();
+
+                    BodyPacket bodyPacket = new BodyPacket(msg);
+                    System.out.println("body type : "+bodyPacket.getType().toString());
+                    System.out.println("length : "+bodyPacket.getBodyLength());
+                    byte[] bodyBytes = bodyPacket.getBodyBytes();
+                    byte[] headerBytes = bodyPacket.getHeaderBytes(bodyPacket.getType(), bodyPacket.getBodyLength());
+                    byte[] packetbytedata = new byte[headerBytes.length + bodyBytes.length];
+                    System.arraycopy(headerBytes, 0, packetbytedata, 0, headerBytes.length);
+                    System.arraycopy(bodyBytes, 0, packetbytedata, headerBytes.length, bodyBytes.length);
+
+                    dos.write(packetbytedata);
+                    dos.flush();
+                }else if(command.equals("2")){ // 입장
+                    ConnectPacket connectPacket = new ConnectPacket();
+                    System.out.println("body type : "+connectPacket.getType().toString());
+                    System.out.println("length : "+connectPacket.getBodyLength());
+                    byte[] bodyBytes = connectPacket.getConnectBytes();
+                    byte[] headerBytes = connectPacket.getHeaderBytes(connectPacket.getType(), connectPacket.getBodyLength());
+
+                    byte[] packetbytedata = new byte[headerBytes.length + bodyBytes.length];
+                    System.arraycopy(headerBytes, 0, packetbytedata, 0, headerBytes.length);
+                    System.arraycopy(bodyBytes, 0, packetbytedata, headerBytes.length, bodyBytes.length);
+
+                    dos.write(packetbytedata);
+                    dos.flush();
+                }else if(command.equals("3")){ // 퇴장
+                    DisconnectPacket disconnectPacket = new DisconnectPacket();
+                    System.out.println("body type : "+disconnectPacket.getType().toString());
+                    System.out.println("length : "+disconnectPacket.getBodyLength());
+                    byte[] bodyBytes = disconnectPacket.getConnectBytes();
+                    byte[] headerBytes = disconnectPacket.getHeaderBytes(disconnectPacket.getType(), disconnectPacket.getBodyLength());
+
+                    byte[] packetbytedata = new byte[headerBytes.length + bodyBytes.length];
+                    System.arraycopy(headerBytes, 0, packetbytedata, 0, headerBytes.length);
+                    System.arraycopy(bodyBytes, 0, packetbytedata, headerBytes.length, bodyBytes.length);
+
+                    dos.write(packetbytedata);
+                    dos.flush(); //write후 데이터 전송
+
+                    break;
+                }
+
+            }
 
             // 스트림과 소켓을 닫는다
-            dis.close();
+            dos.close();
             socket.close();
             System.out.println("연결이 종료되었습니다.");
-        }catch (Exception e){
+        } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            try {
+                if (sc != null) sc.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 }
