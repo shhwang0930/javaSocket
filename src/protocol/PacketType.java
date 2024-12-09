@@ -9,7 +9,8 @@ public enum PacketType {
     CL_MSG(1),
     SER_TEST(2),
     CL_CONNECT(3),
-    CL_DISCONNECT(4);
+    CL_DISCONNECT(4),
+    CL_FILE(5);
     private final int value;
 
     public static PacketType getPacketType(int value) {
@@ -18,6 +19,7 @@ public enum PacketType {
             case 2 -> SER_TEST;
             case 3 -> CL_CONNECT;
             case 4 -> CL_DISCONNECT;
+            case 5 -> CL_FILE;
             default -> null;
         };
     }

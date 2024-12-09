@@ -4,7 +4,7 @@ public class ConnectPacket extends HeaderPacket {
     private static final String DEFAULT_MESSAGE = "사용자가 연결되었습니다.";
     private String message;
     public ConnectPacket() {
-        super(PacketType.CL_CONNECT, 8+DEFAULT_MESSAGE.getBytes().length);
+        super(PacketType.CL_CONNECT, 4+DEFAULT_MESSAGE.getBytes().length);
         this.message = DEFAULT_MESSAGE;
     }
 

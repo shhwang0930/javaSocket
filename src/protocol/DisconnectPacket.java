@@ -4,7 +4,7 @@ public class DisconnectPacket  extends HeaderPacket {
     private static final String DEFAULT_MESSAGE = "사용자가 퇴장하였습니다.";
     private String message;
     public DisconnectPacket() {
-        super(PacketType.CL_DISCONNECT, 8+DEFAULT_MESSAGE.getBytes().length);
+        super(PacketType.CL_DISCONNECT, 4+DEFAULT_MESSAGE.getBytes().length);
         this.message = DEFAULT_MESSAGE;
     }
 

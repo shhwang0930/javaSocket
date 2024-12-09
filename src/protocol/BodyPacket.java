@@ -6,7 +6,7 @@ import lombok.Getter;
 public class BodyPacket extends HeaderPacket{
     private final String message;
     public BodyPacket(String message) {
-        super(PacketType.CL_MSG, 8+message.getBytes().length);
+        super(PacketType.CL_MSG, 4+message.getBytes().length);
         this.message = message;
     }
     public byte[] getBodyBytes() {// 메세지길이 + 메세지를 바이트로 변환
