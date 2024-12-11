@@ -3,6 +3,7 @@ package simpleSocket;
 import protocol.BodyPacket;
 import protocol.ConnectPacket;
 import protocol.DisconnectPacket;
+import protocol.FilePacket;
 
 import java.io.*;
 import java.net.Socket;
@@ -48,8 +49,6 @@ public class client {
                     dos.flush();
                 }else if(command.equals("2")){ // 입장
                     ConnectPacket connectPacket = new ConnectPacket();
-                    System.out.println("body type : "+connectPacket.getType().toString());
-                    System.out.println("length : "+connectPacket.getBodyLength());
                     byte[] bodyBytes = connectPacket.getConnectBytes();
                     byte[] headerBytes = connectPacket.getHeaderBytes(connectPacket.getType(), connectPacket.getBodyLength());
 
@@ -59,11 +58,26 @@ public class client {
 
                     dos.write(packetbytedata);
                     dos.flush();
-                }else if(command.equals("3")){ // 퇴장
+                }else if(command.equals("4")){
+                    String fileName;
+                    System.out.println("파일이름을 입력하세요 : ");
+                    fileName = sc.nextLine();
+                    File file = new File("C:/start/"+fileName);
+                    FilePacket filePacket = new FilePacket(fileName, file);
+
+                    byte[] bodyBytes = filePacket.getFileBytes();
+                    byte[] headerBytes = filePacket.getHeaderBytes(filePacket.getType(), filePacket.getBodyLength());
+
+                    byte[] packetbytedata = new byte[headerBytes.length + bodyBytes.length];
+                    System.arraycopy(headerBytes, 0, packetbytedata, 0, headerBytes.length);
+                    System.arraycopy(bodyBytes, 0, packetbytedata, headerBytes.length, bodyBytes.length);
+                    System.out.println("length : "+packetbytedata.length);
+                    dos.write(packetbytedata);
+                    dos.flush();
+                }
+                else if(command.equals("3")){ // 퇴장
                     DisconnectPacket disconnectPacket = new DisconnectPacket();
-                    System.out.println("body type : "+disconnectPacket.getType().toString());
-                    System.out.println("length : "+disconnectPacket.getBodyLength());
-                    byte[] bodyBytes = disconnectPacket.getConnectBytes();
+                    byte[] bodyBytes = disconnectPacket.getDisconnectBytes();
                     byte[] headerBytes = disconnectPacket.getHeaderBytes(disconnectPacket.getType(), disconnectPacket.getBodyLength());
 
                     byte[] packetbytedata = new byte[headerBytes.length + bodyBytes.length];

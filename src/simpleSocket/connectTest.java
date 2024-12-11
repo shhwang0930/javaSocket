@@ -24,17 +24,12 @@ public class connectTest {
 
             // 소켓으로 부터 받은 데이터를 출력한다
             String msg = "client test message";
-            /*ConnectPacket connectPacket = new ConnectPacket();
-            System.out.println("body type : "+connectPacket.getType().toString());
-            System.out.println("length : "+connectPacket.getBodyLength());
-            byte[] bodyBytes = connectPacket.getConnectBytes();
-            byte[] headerBytes = connectPacket.getHeaderBytes(connectPacket.getType(), connectPacket.getBodyLength());*/
 
-            DisconnectPacket connectPacket = new DisconnectPacket();
-            System.out.println("body type : "+connectPacket.getType().toString());
-            System.out.println("length : "+connectPacket.getBodyLength());
-            byte[] bodyBytes = connectPacket.getConnectBytes();
-            byte[] headerBytes = connectPacket.getHeaderBytes(connectPacket.getType(), connectPacket.getBodyLength());
+            DisconnectPacket disconnectPacket = new DisconnectPacket();
+            System.out.println("body type : "+disconnectPacket.getType().toString());
+            System.out.println("length : "+disconnectPacket.getBodyLength());
+            byte[] bodyBytes = disconnectPacket.getDisconnectBytes();
+            byte[] headerBytes = disconnectPacket.getHeaderBytes(disconnectPacket.getType(), disconnectPacket.getBodyLength());
 
             byte[] packetbytedata = new byte[headerBytes.length + bodyBytes.length];
             System.arraycopy(headerBytes, 0, packetbytedata, 0, headerBytes.length);

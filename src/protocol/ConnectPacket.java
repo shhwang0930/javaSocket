@@ -1,5 +1,8 @@
 package protocol;
 
+import lombok.Getter;
+
+@Getter
 public class ConnectPacket extends HeaderPacket {
     private static final String DEFAULT_MESSAGE = "사용자가 연결되었습니다.";
     private String message;
