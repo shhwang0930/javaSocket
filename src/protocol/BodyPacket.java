@@ -9,7 +9,8 @@ public class BodyPacket extends HeaderPacket{
         super(PacketType.CL_MSG, 4+message.getBytes().length);
         this.message = message;
     }
-    public byte[] getBodyBytes() {// 메세지길이 + 메세지를 바이트로 변환
+
+    public byte[] getBodyBytes() {// 클라이언트에서 메세지길이 + 메세지를 바이트로 변환
         byte[] messageBytes = message.getBytes();
         byte[] bodyBytes = new byte[bodyLength];
         System.arraycopy(intToBytes(messageBytes.length), 0, bodyBytes, 0, 4);
@@ -17,9 +18,9 @@ public class BodyPacket extends HeaderPacket{
         return bodyBytes;
     }
 
-    public static BodyPacket byteToBodyPacket(byte[] bodyBytes) {
-        int messageLength = bytesToInt(bodyBytes, 8, 11);
-        String message = new String(bodyBytes, 12, messageLength); //인덱스 15 + nameLength부터 messageLength만큼 문자열로 변환
+    public static BodyPacket byteToBodyPacket(byte[] bytes) {
+        int messageLength = bytesToInt(bytes, 8, 11);
+        String message = new String(bytes, 12, messageLength); //인덱스 15 + 부터 messageLength만큼 문자열로 변환
 
         return new BodyPacket(message);
     }

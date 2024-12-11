@@ -29,11 +29,11 @@ public class FilePacket extends HeaderPacket{
         return bodyBytes;
     }
 
-    public static FilePacket byteToFilePacket(byte[] bodyBytes) throws IOException {
-        int fileNameLength = bytesToInt(bodyBytes, 8, 11);
-        String fileName = new String(bodyBytes, 12, fileNameLength); //인덱스 15 + nameLength부터 messageLength만큼 문자열로 변환
-        int fileLength = bytesToInt(bodyBytes, 12+fileNameLength, 15+fileNameLength);
-        File file = writeByteArrayToFile(bodyBytes, fileName);
+    public static FilePacket byteToFilePacket(byte[] bytes) throws IOException {
+        int fileNameLength = bytesToInt(bytes, 8, 11);
+        String fileName = new String(bytes, 12, fileNameLength); //인덱스 15 + nameLength부터 messageLength만큼 문자열로 변환
+        int fileLength = bytesToInt(bytes, 12+fileNameLength, 15+fileNameLength);
+        File file = writeByteArrayToFile(bytes, fileName);
         return new FilePacket(fileName,file);
     }
 

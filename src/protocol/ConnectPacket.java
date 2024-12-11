@@ -19,9 +19,9 @@ public class ConnectPacket extends HeaderPacket {
         return bodyBytes;
     }
 
-    public static ConnectPacket byteToConnectPacket(byte[] bodyBytes) {
-        int messageLength = bytesToInt(bodyBytes, 8, 11);
-        String message = new String(bodyBytes, 12, messageLength); //인덱스 15 + nameLength부터 messageLength만큼 문자열로 변환
+    public static ConnectPacket byteToConnectPacket(byte[] bytes) {
+        int messageLength = bytesToInt(bytes, 8, 11);
+        String message = new String(bytes, 12, messageLength); //인덱스 15 + nameLength부터 messageLength만큼 문자열로 변환
 
         return new ConnectPacket();
     }

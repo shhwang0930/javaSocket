@@ -19,9 +19,9 @@ public class DisconnectPacket  extends HeaderPacket {
         return bodyBytes;
     }
 
-    public static DisconnectPacket byteToDisconnectPacket(byte[] bodyBytes) {
-        int messageLength = bytesToInt(bodyBytes, 8, 11);
-        String message = new String(bodyBytes, 12, messageLength); //인덱스 15 + nameLength부터 messageLength만큼 문자열로 변환
+    public static DisconnectPacket byteToDisconnectPacket(byte[] bytes) {
+        int messageLength = bytesToInt(bytes, 8, 11);
+        String message = new String(bytes, 12, messageLength); //인덱스 15 + nameLength부터 messageLength만큼 문자열로 변환
 
         return new DisconnectPacket();
     }
