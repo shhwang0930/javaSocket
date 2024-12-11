@@ -18,16 +18,16 @@
   * 템플릿 메서드 패턴 : 변하지 않는 기능(템플릿)들은 상위 클래스에 만들어주고 자주 변경되거나 하위 클래스에서의 확장될 부분은 따로 구현하는 방식
 
 
-    public byte[] intToBytes(int i) {
+    ``public byte[] intToBytes(int i) {
         byte[] b = new byte[4];
         b[0] = (byte) ((i & 0xFF000000) >> 24);
         b[1] = (byte) ((i & 0x00FF0000) >> 16);
         b[2] = (byte) ((i & 0x0000FF00) >> 8);
         b[3] = (byte) (i & 0x000000FF);
         return b;
-    }
+    }``
 
-    public static int bytesToInt(byte[] b, int start, int end) {
+    ``public static int bytesToInt(byte[] b, int start, int end) {
     // 입력 유효성 검사
       if (end - start != 3) {
         throw new IllegalArgumentException("start와 end 사이의 길이는 4여야 합니다. 범위: " + (end - start + 1));
@@ -39,5 +39,5 @@
         ((b[start + 1] & 0xFF) << 16) |
         ((b[start + 2] & 0xFF) << 8) |
         (b[start + 3] & 0xFF);
-    }
+    }``
 - 직렬화, 역직렬화
