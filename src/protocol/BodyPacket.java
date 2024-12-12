@@ -4,6 +4,7 @@ import lombok.Getter;
 
 @Getter
 public class BodyPacket extends HeaderPacket{
+    //private final int msgLength;
     private final String message;
     public BodyPacket(String message) {
         super(PacketType.CL_MSG, 4+message.getBytes().length);

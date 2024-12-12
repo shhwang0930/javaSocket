@@ -21,7 +21,7 @@ public class client {
             String serverIp = "127.0.0.1";
             out.println("서버에 연결중입니다. 서버 IP : " + serverIp);
             // 소켓을 생성하여 연결을 요청한다.
-            socket = new Socket(serverIp, 8000);
+            socket = new Socket(serverIp, 4000);
 
             // 소켓의 입력스트림을 얻는다
             OutputStream out = socket.getOutputStream();
@@ -35,13 +35,14 @@ public class client {
                     String msg;
                     System.out.println("채팅을 입력하세요 : ");
                     msg = sc.nextLine();
-
+                    msg +="\0";
                     BodyPacket bodyPacket = new BodyPacket(msg);
                     System.out.println("body type : "+bodyPacket.getType().toString());
                     System.out.println("length : "+bodyPacket.getBodyLength());
                     byte[] bodyBytes = bodyPacket.getBodyBytes();
                     byte[] headerBytes = bodyPacket.getHeaderBytes(bodyPacket.getType(), bodyPacket.getBodyLength());
                     byte[] packetbytedata = new byte[headerBytes.length + bodyBytes.length];
+                    System.out.println("header length : "+headerBytes.length+" body length : "+bodyBytes.length);
                     System.arraycopy(headerBytes, 0, packetbytedata, 0, headerBytes.length);
                     System.arraycopy(bodyBytes, 0, packetbytedata, headerBytes.length, bodyBytes.length);
 

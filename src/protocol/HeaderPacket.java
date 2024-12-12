@@ -21,12 +21,21 @@ public abstract class HeaderPacket {
         return headerBytes;
     }
 
-    public byte[] intToBytes(int i) { // 패킷의 값들을 바이트 배열로 변환
+    /*public byte[] intToBytes(int i) { // 패킷의 값들을 바이트 배열로 변환
         byte[] b = new byte[4];
         b[0] = (byte) ((i & 0xFF000000) >> 24);
         b[1] = (byte) ((i & 0x00FF0000) >> 16);
         b[2] = (byte) ((i & 0x0000FF00) >> 8);
         b[3] = (byte) (i & 0x000000FF);
+        return b;
+    }*/
+
+    public byte[] intToBytes(int i) { // 리틀 엔디안 방식
+        byte[] b = new byte[4];
+        b[0] = (byte) (i & 0x000000FF);         // LSB
+        b[1] = (byte) ((i & 0x0000FF00) >> 8);
+        b[2] = (byte) ((i & 0x00FF0000) >> 16);
+        b[3] = (byte) ((i & 0xFF000000) >> 24); // MSB
         return b;
     }
 
