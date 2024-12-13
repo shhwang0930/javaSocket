@@ -7,5 +7,7 @@ import java.net.Socket;
 public class Main {
     public static void main(String[] args) throws IOException {
 
+        String encoding = System.getProperty("file.encoding");
+        System.out.println("Default Encoding: " + encoding);
     }
 }

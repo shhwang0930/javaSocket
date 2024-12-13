@@ -40,18 +40,12 @@ public abstract class HeaderPacket {
     }
 
     public static int bytesToInt(byte[] b, int start, int end) {
-        // 입력 유효성 검사
-        if (end - start != 3) {
-            throw new IllegalArgumentException("start와 end 사이의 길이는 4여야 합니다. 범위: " + (end - start + 1));
-        }
-        if (start < 0 || end >= b.length) {
-            throw new IndexOutOfBoundsException("start와 end가 배열 범위를 벗어났습니다. start: " + start + ", end: " + end);
-        }
-
-        return ((b[start] & 0xFF) << 24) |
+        int result;
+        result = ((b[start] & 0xFF) << 24) |
                 ((b[start + 1] & 0xFF) << 16) |
                 ((b[start + 2] & 0xFF) << 8) |
                 (b[start + 3] & 0xFF);
+        return result;
     }
 
     public static PacketType byteToPacketType(byte[] b) {
@@ -59,7 +53,4 @@ public abstract class HeaderPacket {
         return getPacketType(type);
     }
 
-    public static int byteToBodyLength(byte[] headerByte) {
-        return bytesToInt(headerByte, 4, 7);
-    }
 }

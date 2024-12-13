@@ -35,7 +35,7 @@ public class client {
                     String msg;
                     System.out.println("채팅을 입력하세요 : ");
                     msg = sc.nextLine();
-                    msg +="\0";
+                    msg +="\0";//c언어용 개행문자
                     BodyPacket bodyPacket = new BodyPacket(msg);
                     System.out.println("body type : "+bodyPacket.getType().toString());
                     System.out.println("length : "+bodyPacket.getBodyLength());

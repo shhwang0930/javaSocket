@@ -22,10 +22,10 @@ public class FilePacket extends HeaderPacket{
         byte[] fileBytes = Files.readAllBytes(file.toPath());
         byte[] bodyBytes = new byte[bodyLength];
         System.out.println("file length : "+fileBytes.length);
-        System.arraycopy(intToBytes(fileDirBytes.length), 0, bodyBytes, 0, 4);
-        System.arraycopy(fileDirBytes, 0, bodyBytes, 4, fileDirBytes.length);
-        System.arraycopy(intToBytes(Files.readAllBytes(file.toPath()).length), 0, bodyBytes, 4+fileDirBytes.length, 4);
-        System.arraycopy(Files.readAllBytes(file.toPath()), 0, bodyBytes, 8+fileDirBytes.length, Files.readAllBytes(file.toPath()).length);
+        System.arraycopy(intToBytes(fileDirBytes.length), 0, bodyBytes, 0, 4);//파일이름길이
+        System.arraycopy(fileDirBytes, 0, bodyBytes, 4, fileDirBytes.length);//파일이름
+        System.arraycopy(intToBytes(Files.readAllBytes(file.toPath()).length), 0, bodyBytes, 4+fileDirBytes.length, 4);//파일길이
+        System.arraycopy(Files.readAllBytes(file.toPath()), 0, bodyBytes, 8+fileDirBytes.length, Files.readAllBytes(file.toPath()).length);//파일
         return bodyBytes;
     }
 
